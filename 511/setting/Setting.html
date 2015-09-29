@@ -1,0 +1,64 @@
+<div style="width:100%;height:100%;">
+    <div data-dojo-attach-point="firstPage" class="first-page">
+        <div data-dojo-attach-point="tableLayerInfos" class="table-layer-infos"></div>
+        <div data-dojo-attach-point="tableEditInfosError" style="display:none"></div>
+    </div>
+    <div>
+        <div class="instruction">
+            <span class="instruction-inner">${nls.mainPanelText}</span>
+        </div>
+
+        <input type="text" name="mainPanelText"
+               placeholder="${nls.mainPanelTextPlaceholder}"
+               data-dojo-type="dijit/form/TextBox"
+               data-dojo-props="trim:true"
+               data-dojo-attach-point="mainPanelText"
+               style="width:100%">
+
+        <div class="instruction">
+            <span class="instruction-inner">${nls.mainPanelIcon}</span>
+        </div>
+
+        <div style="width:400px; height:220px; border: 5px dashed gray; float:left">
+            <div data-dojo-attach-point="mainPanelPreviewButton" style="float:left; padding:80px 15px 15px 15px">
+                <div data-dojo-attach-event="onclick:uploadImage" class="jimu-btn">
+                    Upload Image
+                </div>
+            </div>
+            <div data-dojo-attach-point="mainPanelPreview" style="float:left; height:185px; padding:5px 5px 5px 5px" class="bg rounded">
+                <div id="panelMain" class="panelContent bg">
+                    <div class="page">
+                        <div class="pageContent rounded">
+                            <div class="pageHeader roundedTop">
+                                <div class="pageCounter">
+                                    <div data-dojo-attach-point="panelMainIcon" />
+                                </div>
+                            </div>
+                            <div class="pageTitle" data-dojo-attach-point="pageTitle"></div>
+                            <div id="pageCloseMain" class="pageClose" data-dojo-attach-point="pageCloseMain"></div>
+                        </div>
+                        <div class="pageBody">
+                            <div id="pageMain" class="resultsContent" data-dojo-attach-point="pageMain"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <input type="file" accept="image/png, image/jpeg, image/bmp, image/gif" data-dojo-attach-point="fileInput" style="opacity:0; width:0px; height:0px;">
+    </div>
+    <div style="float:left; width:100%; padding:10px 10px 10px 10px">
+        <div data-dojo-type="jimu/dijit/CheckBox"
+             data-dojo-attach-point="cbxEnableRefresh"
+             data-dojo-props='label:"${nls.enableRefresh}"'
+             class="" style="float:left; width:160px;">
+        </div>
+        <input type="text" name="refreshInterval"
+               placeholder="${nls.refreshInterval}"
+               data-dojo-type="dijit/form/ValidationTextBox"
+               data-dojo-props="regExp:'[\\d]+', invalidMessage:'Only numeric characters supported.',trim:true"
+               data-dojo-attach-point="refreshInterval"
+               style="float:left; width:350px;">
+    </div>
+</div>

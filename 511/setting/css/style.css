@@ -1,0 +1,296 @@
+.jimu-widget-511-setting{
+  padding-top: 0px;
+  padding-right: 5px;
+  padding-bottom: 0px;
+  padding-left: 5px;
+  font-size:14px;
+}
+
+.myIconOn {
+  background-image: url(../../images/delete_default.png);
+  background-repeat: no-repeat;
+  background-color: transparent;
+  width: 16px;
+  height:16px;
+  text-align: center;
+  color:transparent;
+  cursor: pointer;
+}
+
+.myIconOn:hover {
+  background-image: url(../../images/delete_hover.png);
+  background-repeat: no-repeat;
+  background-color: transparent;
+  width: 16px;
+  height:16px;
+  text-align: center;
+  color:transparent;
+  cursor: pointer;
+}
+
+.thumb2{
+    width:20px; 
+    height:20px; 
+    vertical-align:super;
+
+    /*align-content:center;
+    text-align:center;*/
+}
+
+.recLabel{
+    text-align:center;
+    vertical-align: central;
+    align-content:center;
+}
+
+
+.jimu-widget-511-setting .instruction{
+	 padding-top: 20px;
+}
+
+.jimu-widget-511-setting .instruction span{
+	color: #596679;
+}
+.jimu-widget-511-setting .editor-container{
+    position: relative;
+    width: 40%;
+	border: 1px solid #d2dae2;
+	background-color: #fafafc;
+}
+.jimu-widget-511-setting .editor-container .uploaderInsideNode embed {
+	display: none;
+}
+.jimu-widget-511-setting .editor-container .dijitEditorIFrameContainer{
+
+}
+
+.jimu-widget-511-setting .show{
+  width: 120px;
+}
+.jimu-widget-511-setting .symbol{
+  width: 200px;
+}
+.jimu-widget-511-setting .first-page{
+	position: relative;
+	/*height: 100%;*/
+}
+.jimu-widget-511-setting .table-layer-infos{
+	width: 100%;
+    height: 200px;
+	/*position: absolute;
+	top: 0;
+	bottom: 36px;*/
+}
+
+.jimu-widget-511-setting .editText{
+        /*background-color:blue;
+    width:50px;
+    height:50px;*/
+}
+
+.upload{
+margin-left:100px;
+}
+
+.mainPanelIconEditClass{
+
+}
+
+.imageTest{
+    /*background-color:red;
+    width:50px;
+    height:50px;*/
+   margin-left:50px;
+   align-items: center;
+   align-content:center;
+}
+	.panelContent {
+		position: relative;
+		width: 200px;
+		height: 200px;
+	}
+	
+	.page {
+		position: relative;
+		width: 220px;
+		height: 200px;
+		display: block;
+		background-color: rgba(0,0,0,0.15);
+	}
+
+.pageHeader {
+	position: relative;
+	width: 100%;
+	height: 200px;
+	text-align: center;
+	display: block;
+}
+
+.pageTitle {
+	position: absolute;
+	left: 0px;
+	bottom: 5px;
+	width : 100%;
+	height: 20px;
+	font-size: 11px;
+	color: #ffffff;
+	line-height: 20px;
+	text-align: center;
+}
+
+.pageCounter {
+	position: absolute;
+	top: 10px;
+	width: auto;
+    height: auto;
+    bottom:25px;
+    left: 15px;
+    right:15px;
+	font-size: 90px;
+	line-height: 140px;
+	font-family: Steelfish;
+	border: 10px solid rgba(0,0,0,1);
+	-moz-border-radius: 80px;
+	-webkit-border-radius: 80px;
+	border-radius: 80px;
+	opacity:0.3;
+	filter:alpha(opacity=30);
+}
+
+        .bg {
+	display: block;
+	background-color: rgb(255,255,255);
+	-moz-opacity: 0.9;
+	-khtml-opacity: 0.9;
+	opacity: 0.9;
+	filter: alpha(opacity=90);
+}
+
+.rounded {
+	-moz-border-radius: 5px 5px 5px 5px;
+	-webkit-border-radius: 5px 5px 5px 5px;
+	border-radius: 5px 5px 5px 5px;
+}
+
+.roundedTop {
+	-moz-border-radius: 5px 5px 0 0;
+	-webkit-border-radius: 5px 5px 0 0;
+	border-radius: 5px 5px 0 0;
+}
+
+.pageContent {
+	position:relative;
+ top:0px;
+}
+
+.pageIcon {
+		position: absolute;
+		left: 10px;
+		top: 10px;
+		width: 50px;
+		height: 50px;
+	}
+
+.resultsContent {
+	width: 100%;
+	min-height: 100%;
+	overflow-x: hidden;
+	overflow-y: visible;
+}
+
+.pageClose {
+	position: absolute;
+	right: 5px;
+	top: 5px;
+	background: url(../images/up.png) no-repeat;
+	cursor: pointer;
+	width: 20px;
+	height: 20px;
+	display: block;
+}
+
+.pageBody {
+	position: absolute;
+	top: 200px;
+	bottom: 0px;
+	width: 100%;
+	display: block;
+	color: #000000;
+	font-size: 10px;
+	text-align: center;
+	padding: 0px;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+.shadow {
+	/*-moz-box-shadow: 3px 3px 10px rgba(0,0,0,0.3);
+	-webkit-box-shadow: 3px 3px 10px rgba(0,0,0,0.3);
+	box-shadow: 3px 3px 10px rgba(0,0,0,0.3);
+	-ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=10, Direction=135, Color='#000000')";*/
+	/*filter: progid:DXImageTransform.Microsoft.Shadow(Strength=10, Direction=135, Color='#000000');*/
+}
+
+#panelMain {
+  display: block;
+}
+
+.top-panel {
+	position: fixed;
+	left: 40px;
+	top: 5px;
+	color: #ffffff;
+	font-family: HelveticaNeueUltraLight;
+	font-size: 20px;
+	font-weight: normal;
+	padding: 0px;
+	display: block;
+	overflow: visible;
+	height: auto;
+}
+
+#panelTop {
+	position: fixed;
+	left: 40px;
+	top: 5px;
+	color: #ffffff;
+	font-family: HelveticaNeueUltraLight;
+	font-size: 20px;
+	font-weight: normal;
+	padding: 0px;
+	display: block;
+	overflow: visible;
+	height: auto;
+}
+
+#panelTitle {
+	max-width: 500px;
+	height: 50px;
+	float: left;
+	color: #ffffff;
+	padding: 0 5px 0 0;
+	display: block;
+}
+
+#panelLogo {
+    background-color:blue;
+	height: 50px;
+	overflow: hidden;
+	float: left;
+	line-height: 50px;
+}
+
+#panelSearch {
+	float: left;
+    background-color:red;
+	margin: 10px 0 10px 5px;
+	width: 227px;
+	height: 30px;
+	overflow: hidden;
+}
+
+svg {
+  position: relative;
+  transform: translateX(-10%);
+  fill="url(#img1)";
+}
