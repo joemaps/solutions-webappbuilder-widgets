@@ -28,6 +28,12 @@
   cursor: pointer;
 }
 
+.t{
+     width:90%; 
+     height:90%; 
+     position:relative;
+}
+
 .thumb2{
     width:20px; 
     height:20px; 

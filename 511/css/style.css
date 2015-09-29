@@ -15,7 +15,6 @@
   height: 100%;
 }
 
-/*JH TODO see if I can use something like this to control only my widgets position...without having to go to a custom theme*/
 .jimu-preload-widget-icon-panel {
   left: auto !important;
   right: 20px !important;
@@ -26,264 +25,11 @@
   border-radius: 0;
 }
 
-
-.jimu-widget-attributetable{
-  z-index: 101;/*above map's attribute*/
-}
-.jimu-widget-attributetable .jimu-loading-indicator{
-  z-index: 1000;
-}
-.jimu-widget-attributetable-main .tabStripButton{
-  height: 24px !important;
-}
-.jimu-widget-attributetable, .jimu-widget-attributetable-main{
-  width: 100%;
-  height: 100%;
-  left: 0px;
-  bottom: 0px;
-  background-color: #efefef;
-}
-.jimu-widget-attributetable-main{
-  overflow: hidden;
-}
-.jimu-widget-attributetable-move{
-  width: 100%;
-  height: 7px;
-  top: 0px;
-}
-.jimu-widget-attributetable-move:hover{
-  cursor: n-resize;
-}
-.jimu-widget-attributetable-move:hover .jimu-widget-attributetable-thumb{
-  background-color: #fff;
-}
-.jimu-widget-attributetable-thumb{
-  background: #B0B0B0 none;
-  height: 1px;
-  width: 19px;
-  margin: 3px auto;
-  position: absolute;
-  left: 0;
-  right: 0;
-}
-.jimu-widget-attributetable-indicate-vertical{
-  width: 2px;
-  height: 100%;
-  background-color: black;
-  position: absolute;
-  z-index: 1;
-  opacity: 0;
-}
-.jimu-widget-attributetable-indicate-horizontal{
-  width: 100%;
-  height: 2px;
-  background-color: black;
-  position: absolute;
-  z-index: 1;
-  opacity: 0;
-}
-
-.jimu-widget-attributetable-bar{
-  width: 63px;
-  height: 17px;
-  left: 0;
-  right: 0;
-  top: -17px;
-  margin: auto;
-  position: absolute;
-  background-color: #efefef;
-  cursor: pointer;
-  border: 1px solid #fff;
-  border-radius: 2px 2px 0 0;
-  background-position: center;
-  background-repeat: no-repeat;
-}
-.jimu-widget-attributetable-bar:hover{
-  background-color: #bfbfbf;
-}
-.jimu-widget-attributetable-bar.open{
-  background-image: url(images/arrow_down.png);
-  border: none;
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-.thisisatest{
-  background-image: url(images/incident.png);
-}
-/*.jimu-widget-attributetable-bar.close{
-  background-image: url(images/arrow_up.png)
-}*/
-.jimu-widget-attributetable-arrowImage{
-  width: 30px;
-  height: 30px;
-  left: 48%;
-  top: -30px;
-  position: absolute;
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
-  border-bottom-left-radius: 0px;
-  border-bottom-right-radius: 0px;
-  background-position: center center;
-  background-repeat: no-repeat;
-  cursor: ns-resize;
-  background-color: rgba(0, 0, 0, 0.8);
-}
-
-.dijitTabPaneWrapper .dijitTabContainerTop-container .dijitAlignCenter{
-  height: 100%;
-}
-.jimu-widget-attributetable .dijitTabContainerTopChildWrapper,
-.jimu-widget-attributetable .dijitTabContainerTopChildWrapper .dijitContentPane{
-  height: 100%;
-}
-
-.jimu-widget-attributetable .esriAttributeTable{
-  width: 100%;
-  height: 100%; 
-  position: relative;
-}
-.jimu-widget-attributetable .esriAttributeTableToolbar{
-  width: 100%;
-  height: 30px;
-  left: 0px;
-  top: 0px;
-  z-index: 100;
-  position: relative;
-}
-.jimu-widget-attributetable .dgrid-sortable { 
-  font-weight: bold;
-}
-.jimu-widget-attributetable .dgrid-cell {
-  border-right: solid 1px #ccc;
-  width: 100px;
-}
-.jimu-widget-attributetable .dgrid-row .dgrid-cell {
-  border:medium none;  
-  padding: 7px 3px;
-  border-right: 1px solid #CCCCCC;
-}
-.jimu-rtl .jimu-widget-attributetable .dgrid-cell {
-  text-align: right;
-}
-.jimu-widget-attributetable .dgrid-header {
-  overflow: hidden;
-  background-color: #eee;
-}
-.jimu-widget-attributetable .dgrid-cell a{
-  color: #21759B;
-  text-decoration: none;
-}
-.jimu-widget-attributetable .dgrid-cell a:hover, a:active{
-  text-decoration: underline;
-}
-.jimu-widget-attributetable .dgrid-row {
-  border: medium none;
-}
-.jimu-widget-attributetable .dgrid-row:hover {
-background-color:#E1F0FB;
-}
-.jimu-widget-attributetable .dgrid-row-even{
-  background-color: #FFF;
-}
-.jimu-widget-attributetable .dgrid-row-odd {
-  background-color: #F7F8F8;
-}
-.jimu-widget-attributetable .ui-state-active {
-  background-color: #AEC7E3;
-}
-.jimu-widget-attributetable .dgrid-status {
-  white-space: pre;
-}
-.jimu-widget-attributetable .self-footer {
-  display: inline-block;
-}
-.jimu-rtl .dgrid-hider-menu-check{
-  right: 2px;
-  left: auto;
-}
-.jimu-rtl .dgrid-hider-menu-label {
-  padding-left: 0;
-  padding-right: 20px; 
-}
-.jimu-rtl .jimu-widget-attributetable .dgrid-pagination .dgrid-status{
-  float: right !important;
-}
-.jimu-rtl .dgrid-pagination .dgrid-navigation,
-.jimu-rtl .dgrid-pagination .dgrid-page-size{
-  float: left !important;
-}
-.esriAttributeTableExportImage{
-  background-image: url("../images/export.png");
-  width: 13px;
-  height: 13px;
-}
-.esriAttributeTableZoomImage{
-  background-image: url("../images/zoom.png");
-  width: 13px;
-  height: 13px;
-}
-.esriAttributeTableSelectAllImage{
-  background-image: url("../images/select.png");
-  width: 13px;
-  height: 13px;
-}
-.esriAttributeTableSelectPageImage{
-  background-image: url("../images/page.png");
-  width: 13px;
-  height: 13px;
-}
-.esriAttributeTableClearImage{
-  background-image: url("../images/clear.png");
-  width: 13px;
-  height: 13px;
-}
-.esriAttributeTableOptionsImage{
-  background-image: url("../images/more.png");
-  width: 13px;
-  height: 13px;
-}
-.esriAttributeTableRefreshImage{
-  background-image: url("../images/refresh.png");
-  width: 13px;
-  height: 13px;
-}
-.esriAttributeTableSymbolImage{
-  background-image: url("../images/symbol.png");
-  width: 13px;
-  height: 13px;
-}
-.esriAttributeTableCloseImage{
-  background-image: url("../images/close.png");
-  width: 13px;
-  height: 13px;
-}
 .main-icon{
   /*background-image: url("../images/main.png");*/
   width: 10%;
   height: 10%;
 }
-
-.route-big-icon{
-    background-image: url("../images/route_big.png");
-    background-size:100%;
-    width: 100%;
-    height: 100%;
-}
-
-.weather-big-icon{
-    background-image: url("../images/weather_big.png");
-    background-size:100%;
-    width: 100%;
-    height: 100%;
-}
-
-/*.top-panel{
-    background-image: url("../images/logo.png");
-    background-size:100%;
-    width: 100%;
-    height: 100%;
-}*/
 
 .menu-icon {
     background-image: url("../images/menu.png");
@@ -325,14 +71,6 @@ html, body {
 	font-weight: normal;
 	font-style: normal;
 }
-
-/*@font-face {
-	font-family: 'Steelfish';
-	src: url('../fonts/steelfish-webfont.eot');
-	src: url('../fonts/steelfish-webfont.eot?#iefix') format('embedded-opentype'), url('../fonts/steelfish-webfont.woff') format('woff'), url('../fonts/steelfish-webfont.ttf') format('truetype'), url('../fonts/steelfish-webfont.svg#steelfish_rgregular') format('svg');
-	font-weight: normal;
-	font-style: normal;
-}*/
 
 #mapDiv {
 	position: fixed;
@@ -385,176 +123,6 @@ html, body {
 	text-align: center;
 }
 
-/* Esri Jvascript API*/
-
-.esriSimpleSlider {
-	text-align: center;
-	color: #ffffff;
-	background-color: rgb(255,255,255);
-	-moz-opacity: 0.9;
-	-khtml-opacity: 0.9;
-	opacity: 0.9;
-	filter: alpha(opacity=90);
-	cursor: pointer;
-	-moz-box-shadow: 3px 3px 10px rgba(0,0,0,0.3);
-	-webkit-box-shadow: 3px 3px 10px rgba(0,0,0,0.3);
-	box-shadow: 3px 3px 10px rgba(0,0,0,0.3);
-	-ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=10, Direction=135, Color='#000000')";
-}
-
-.esriSimpleSlider div {
-	width: 24px;
-	height: 24px;
-	font-size: 20px;
-	font-family: verdana, helvetica;
-	font-weight: bold;
-	line-height: 24px;
-	-webkit-user-select: none;
-}
-
-.esriSimpleSliderTL {
-	top: 5px;
-	left: 10px;
-	border: none;
-}
-
-.esriSimpleSliderDecrementButton:hover, .esriSimpleSliderIncrementButton:hover {
-	background-color: rgba(0,0,0,0.3);
-}
-
-.esriSimpleSliderIncrementButton {
-	border-bottom: solid 1px #ffffff !important;
-}
-
-.arcgisGeocoder .esriGeocoderLoading .esriGeocoderReset {
-    background: url("../images/loading.gif") no-repeat scroll center center transparent;
-}
-
-.simpleGeocoder .esriGeocoderLoading .esriGeocoderReset {
-	background: url("../images/loading.gif") no-repeat scroll center center transparent;
-}
-
-.simpleGeocoder .esriGeocoder {
-	display: block;
-	width: 100%;
-	margin: 0;
-	/*border: 1px solid #57585A;*/
-	border: transparent;
-	background-color: rgba(0,0,0,0.3);
-	-webkit-border-radius: 5px;
-	border-radius: 5px;
-}
-
-.simpleGeocoder .esriGeocoder input {
-	color: #FFF;
-}
-
-.simpleGeocoder .esriGeocoder input:focus {
-	color: #FFF;
-}
-
-.esriControlsBR {
-	position: absolute;
-	left: 0px;
-	bottom: 0px;
-}
-
-.logo-med {
-	position: absolute;
-	left: 0px;
-	bottom: 0px;
-}
-
-.logo-sm {
-	position: absolute;
-	left: 0px;
-	bottom: 0px;
-}
-
-.esriAttribution {
-	position: absolute;
-	left: 65px;
-	bottom: 5px;
-}
-
-.HomeButton .home {
-	top: 0px;
-	padding: 0px;
-	width: 26px;
-	height: 26px;
-	background-color: transparent;
-	-webkit-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
-	cursor: pointer;
-	-webkit-border-radius: 13px;
-	-moz-border-radius: 13px;
-	-o-border-radius: 13px;
-	border-radius: 13px;
-	background-size: 14px 14px;
-}
-
-.LocateButton .zoomLocateButton {
-	padding: 0px;
-	width: 26px;
-	height: 26px;
-	background-color: transparent;
-	-webkit-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
-	cursor: pointer;
-	-webkit-border-radius: 13px;
-	-moz-border-radius: 13px;
-	-o-border-radius: 13px;
-	border-radius: 13px;
-	background-size: 14px 14px;
-}
-
-.sizer .titlePane{
-	height: 30px;
-}
-
-.esriPopup .titlePane {
-	border: none !important;
-}
-
-.esriPopup .contentPane {
-	background-color: #FFFFFF;
-}
-
-.esriPopup .actionsPane {
-	background-color: #FFFFFF;
-}
-
-.esriPopup {
-	font-size: 10px !important;
-}
-
-.esriPopup .pointer{
-	display: none !important;
-}
-
-.esriPopup .outerPointer {
-	display: none !important;
-}
-
-.esriPopup .titleButton.maximize {
-	display: none !important;
-}
-
-.esriStopsGetDirectionsContainer {
-	width: 180px !important;
-}
-
-/*.esriStopsContainer {
-	display: none;
-}
-
-.esriResultsButtonsContainer {
-	display: none;
-}*/
 
 /* Template */
 
@@ -601,19 +169,6 @@ html, body {
 
 #panelMain {
 	display: block;
-}
-
-#panelRoute {
-	display: none;
-}
-
-#panelWeather {
-	display: none;
-}
-
-#pageRoute {
-	width: 100%;
-	height: 100%;
 }
 
 .panelContent {
@@ -723,44 +278,6 @@ html, body {
 	overflow-y: visible;
 }
 
-/* Weather */
-
-.recWeather {
-	width: 100%;
-	height: 65px;
-	display: block;
-	border-bottom: 1px solid #dcdcdc;
-	text-align: center;
-	font-size: 11px;
-	line-height: 20px;
-	color: #6e6e6e;
-}
-
-.recLeft {
-	float: left;
-	width: 50%;
-	height: 100%;
-}
-
-.recRight {
-	float: left;
-	width: 50%;
-	height: 100%;
-}
-
-.num {
-	font-size: 30px;
-	font-family: Steelfish;
-	line-height: 40px;
-}
-
-.imgWeather {
-	height: 80%;
-	margin: 10%;
-}
-
-/* Drive Texas */
-
 #legend {
 	position: relative;
 	width: 100%;
@@ -796,6 +313,12 @@ html, body {
 	filter:alpha(opacity=30);
 	cursor: pointer;
     /*background: url(../images/incident.png) no-repeat;*/
+}
+
+.t{
+     width:90%; 
+     height:90%; 
+     position:relative;
 }
 
 .thumb{

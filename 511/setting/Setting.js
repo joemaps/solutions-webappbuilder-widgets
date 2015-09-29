@@ -82,9 +82,6 @@ define([
         baseClass: 'jimu-widget-511-setting',
         _layerInfos: null,
         _tableInfos: null,
-        _delayedLayerInfos: null,
-        _delayedLayerInfosAfterInit: null,
-        _unSpportQueryCampsite: null,
         mpi: null,
 
         postCreate: function () {
@@ -98,13 +95,12 @@ define([
           }
           this._layerInfos = [];
           this._tableInfos = [];
-          this._delayedLayerInfos = [];
-          this._delayedLayerInfosAfterInit = [];
-          this._unSpportQueryCampsite = {};
 
-            //TODO title values need to come from nls
-          var fields = [{
-              name: 'use',
+            //Thinking about moving these to the html to avoid the clutter below
+            //var fields = [{ name: 'use', title: this.nls.useColumnText, width: '5px', type: 'checkbox', 'class': 'use' }, { name: 'upload', title: '', width: '5px', type: 'actions', 'class': 'upload', actions: ['edit'] }, { name: 'image', title: this.nls.iconColumnText, width: '8px', type: 'empty', hidden: false, 'class': 'imageTest' }, { name: 'imageData', title: '', type: 'text', hidden: true, width: '0px' }, { name: 'order', title: '', width: '5px', type: 'actions', 'class': 'order', actions: ['up', 'down'] }, { name: 'label', title: this.nls.nameText, width: '50px', type: 'text', editable: true, 'class': 'editText' }, { name: 'url', title: '', type: 'text', width: '0px', hidden: true }, { name: 'type', title: '', width: '15px', type: 'text', hidden: true }, { name: 'id', title: '', type: 'text', width: '0px', hidden: true }];
+
+
+          var fields = [{ name: 'use',
               title: this.nls.useColumnText,
               width: '5px',
               type: 'checkbox',
@@ -128,7 +124,7 @@ define([
               title: '',
               type: 'text',
               hidden: true,
-              width: '0px',
+              width: '0px'
           },{
               name: 'order',
               title: '',
@@ -138,7 +134,7 @@ define([
               actions: ['up', 'down']
           }, {
               name: 'label',
-              title: this.nls.nameText,
+              title: this.nls.labelColumnText,
               width: '50px',
               type: 'text',
               editable: true,
@@ -150,22 +146,10 @@ define([
               width: '0px',
               hidden: true
           }, {
-              name: 'index',
-              title: '',
-              type: 'text',
-              width: '0px',
-              hidden: true
-          }, {
               name: 'type',
               title: '',
               width: '15px',
               type: 'text',
-              hidden: true
-          }, {
-              name: 'index',
-              title: 'index',
-              type: 'text',
-              width: '0px',
               hidden: true
           }, {
               name: 'id',
@@ -228,10 +212,9 @@ define([
           reader.onload = lang.hitch(this, function () {
               this.panelMainIcon.innerHTML = null;
               this.mpi = reader.result;
-              //TODO get rid of the style junk below
               domConstruct.create("div", {
-                  innerHTML: ['<img class="thumb" src="', reader.result,
-                              '" title="', escape(this.nls.mainPanelIcon), '" style="width:90%; height:90%; position:relative;"/>'].join('')
+                  innerHTML: ['<img class="t" src="', reader.result,
+                              '" title="', escape(this.nls.mainPanelIcon), '"/>'].join('')
               }, this.panelMainIcon);
           });
 
@@ -258,15 +241,27 @@ define([
       },
 
       _initConfigProps: function () {
+          this.cbxRefreshEnabled.onChange = lang.hitch(this, function (val) {
+            this.refreshInterval.disabled = !val;
+            this.refreshInterval.readOnly = !val;         
+          });
+
+          if (typeof (this.config.refreshEnabled) !== 'undefined') {
+              this.cbxRefreshEnabled.checked = this.config.refreshEnabled;
+          }
+
+          if (!this.cbxRefreshEnabled.checked) {
+              this.refreshInterval.disabled = true;
+              this.refreshInterval.readOnly = true;
+          }
+
           if (this.config.mainPanelText) {
               this.mainPanelText.set('value', this.config.mainPanelText);
           }
           if (this.config.mainPanelIcon) {
               this.panelMainIcon.innerHTML = this.config.mainPanelIcon;
           }
-          if (this.config.cbxRefreshInterval) {
-              this.cbxRefreshInterval.checked = this.config.cbxRefreshInterval;
-          }
+
           if (this.config.refreshInterval) {
               this.refreshInterval.set('value', this.config.refreshInterval);
           }
@@ -310,7 +305,6 @@ define([
                   var row = this.displayFieldsTable.addRow({
                       label: layerInfo.label,
                       url: layerInfo.url,
-                      index: "" + i,
                       use: layerInfo.use,
                       imageData: layerInfo.imageData,
                       id: layerInfo.id,
@@ -335,7 +329,7 @@ define([
                   return li;
               }
           }
-          //may have to add index back if that how we keep track of row order when re-opening the config
+
           var newLayerInfo = {
               label: label,
               layer: layer,
@@ -343,8 +337,7 @@ define([
               imageData: null,
               type: layer.type,
               url: layer.url,
-              id: layer.id,
-              index: 0
+              id: layer.id
           };
           return newLayerInfo;
       },
@@ -370,92 +363,8 @@ define([
           return title;
       },
 
-      _init: function (layerInfos) {
-          if (!this.cbxEnableRefresh.checked) {
-              this.refreshInterval.disabled = true;
-          }
-
-          this.cbxEnableRefresh.onChange = lang.hitch(this, function (val) {
-              if (this.refreshInterval) {
-                  if (val === true) {
-                      this.refreshInterval.disabled = false;
-                      this.refreshInterval.readOnly = false;
-                  }
-                  else {
-                      this.refreshInterval.disabled = true;
-                      this.refreshInterval.readOnly = true;
-                  }
-              }
-          });
-
-
-          var unSupportQueryLayerNames = [];
-          var finalI = 0;
-          var hasWeather = false;
-          for (var i = 0; i < layerInfos.length; i++) {
-              var r = this.displayFieldsTable.addRow({
-                  label: layerInfos[i].name || layerInfos[i].title,
-                  url: layerInfos[i].layer.url,
-                  index: "" + i,
-                  use: layerInfos[i].use,
-                  imageData: layerInfos[i].imageData
-              });
-
-              if (layerInfos[i].imageData) {
-                  domConstruct.create("div", {
-                      class: "thumb2",
-                      innerHTML: [layerInfos[i].imageData]
-                  }, r.tr.cells[2]);
-              }
-
-              if (this._unSpportQueryCampsite.fromConfig) {
-                  var _layerNames = this._unSpportQueryCampsite.layerNames;
-                  var nowUnsupport = _layerNames && (_layerNames.indexOf(layerInfos[i].name || layerInfos[i].title) > -1);
-                  if (layerInfos[i].use && nowUnsupport) {
-                      unSupportQueryLayerNames.push(layerInfos[i].name || layerInfos[i].title);
-                  }
-              }
-
-              finalI = i;
-          }
-
-          //TODO ...this would need to be localizable
-          //also would want the URL to be accessable
-          this.displayFieldsTable.addRow({
-              label: "WEATHER",
-              url: "http://api.worldweatheronline.com/free/v1/weather.ashx?format=json&num_of_days=3&extra=localObsTime&key=63hkyhwzpks3a3kj9k9jdfeg",
-              index: "" + i,
-              use: false,
-              type: "weather"
-          });
-
-          if (this._unSpportQueryCampsite.fromConfig && unSupportQueryLayerNames.length > 0) {
-              new Message({
-                  message: this.nls.unsupportQueryLayers + "<br><br>" + unSupportQueryLayerNames.toString()
-              });
-          }
-
-          //if (!has) {
-          //    domStyle.set(this.tableLayerInfosError, "display", "");
-          //    this.tableLayerInfosError.innerHTML = this.nls.noLayers;
-          //} else {
-          //    domStyle.set(this.tableLayerInfosError, "display", "none");
-          //}
-
-          if (layerInfos.length === 0) {
-              domStyle.set(this.tableEditInfosError, "display", "");
-              this.tableEditInfosError.innerHTML = this.nls.noLayers;
-          } else {
-              domStyle.set(this.tableEditInfosError, "display", "none");
-          }
-      },
-
       _destroyPopupDialog: function () {
           dijitPopup.close();
-      },
-
-      _cbxRefreshIntervalClick: function (val) {
-
       },
 
       destroy: function () {
@@ -488,7 +397,6 @@ define([
                     json.use = data[idx].use;
                     json.imageData = data[idx].imageData;
                     json.url = data[idx].url;
-                    json.index = idx;
                     table.push(json);
               }));
           } else {
@@ -500,7 +408,6 @@ define([
                     json.imageData = data[i].imageData;
                     json.use = data[i].use;
                     json.url = data[i].url;
-                    json.index = i;
                     table.push(json);             
               }
           }
@@ -509,7 +416,7 @@ define([
           this.config.mainPanelText = this.mainPanelText.value;
           this.config.mainPanelIcon = this.panelMainIcon.innerHTML;
           this.config.refreshInterval = this.refreshInterval.value;
-          this.config.refreshEnabled = this.cbxEnableRefresh.checked;
+          this.config.refreshEnabled = this.cbxRefreshEnabled.checked;
 
         return this.config;
       },

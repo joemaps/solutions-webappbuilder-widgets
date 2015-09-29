@@ -206,6 +206,9 @@ function (BaseWidget, LayerInfoFactory, LayerInfos, utils,
                     l = this._createClusterLayer(lyrInfo, lyr.layerObject);
                 }
                 this.layerList[l.id] = { type: "ClusterLayer", layerObject: l, visible: true };
+            } else if (lyrType === "Feature Collection") {
+                l = lyr.layerObject;
+                this.layerList[l.id] = { type: lyrType, layerObject: l, visible: true };
             }
             else {
                 var lo = lyr.layerObject;
@@ -311,7 +314,6 @@ function (BaseWidget, LayerInfoFactory, LayerInfos, utils,
                                 //if (lyr.layerObject.graphics.length > 0) {
                                 //    node.innerHTML = this._checkCoincidence(ext, lyr.layerObject);
                                 //} else {
-
 
                                 //TODO go to request also
                                 var q = new Query();
