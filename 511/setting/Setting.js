@@ -38,6 +38,20 @@ define([
     'dojo/_base/html',
     'dojo/_base/array',
     'dojo/sniff'
+    //"dijit/form/TextBox",
+    //"dijit/form/Button",
+    //'dijit/_editor/plugins/LinkDialog',
+    //'dijit/_editor/plugins/ViewSource',
+    //'dijit/_editor/plugins/FontChoice',
+    //'dojox/editor/plugins/Preview',
+    //'dijit/_editor/plugins/TextColor',
+    //'dojox/editor/plugins/ToolbarLineBreak',
+    //'dijit/ToolbarSeparator',
+    //'dojox/editor/plugins/FindReplace',
+    //'dojox/editor/plugins/PasteFromWord',
+    //'dojox/editor/plugins/InsertAnchor',
+    //'dojox/editor/plugins/Blockquote',
+    //'dojox/editor/plugins/UploadImage'
 ],
   function (
       registry,
