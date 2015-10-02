@@ -26,27 +26,29 @@ define([
    'esri/graphic',
    'esri/SpatialReference',
    'esri/geometry/Extent',
-   'esri/geometry/Point',
-   'esri/symbols/PictureMarkerSymbol',
-   'esri/symbols/SimpleMarkerSymbol',
-   'esri/symbols/SimpleLineSymbol',
    'esri/request',
    'esri/tasks/query',
    'esri/tasks/QueryTask'
-   ],function (declare, array, dojoEvent, lang, Color, on, DeferredList, GraphicsLayer, Graphic, SpatialReference, Extent, Point, PictureMarkerSymbol, SimpleMarkerSymbol, SimpleLineSymbol, esriRequest, Query, QueryTask) {
-   var clusterLayer = declare('ClusterLayer', [GraphicsLayer], {
+   ],
+   
+function (declare, array, dojoEvent, lang, Color, on, DeferredList, GraphicsLayer, Graphic, SpatialReference, Extent, esriRequest, Query, QueryTask) {
+    var featureCollectionLayer = declare('FeatureCollectionLayer', [GraphicsLayer], {
+       
+       //options: {name: "", map: map, id: "", renderer: <sourceLayerRenderer>, node: <updateNode>, features: <optional if url is supplied>, infoTemplate: <infoTemplate>}
       constructor : function(options) {
          this.name = options.name;
          this.displayOnPan = options.displayOnPan || false;
          this._map = options.map;
-         this.clusterSize = options.clusterSize || 120;
-         var colorStr = options.color || '#ff0000';
-         this.color = Color.fromString(colorStr);
-         this.icon = options.icon;
+         this._id = options.id;       
+         this.renderer = options.renderer;
+         if (this.renderer) {
+             this.setRenderer(this.renderer);
+             if (typeof (this.renderer.attributeField) !== "undefined") {
+                 this.symbolField = this.renderer.attributeField;
+             }
+         }
          this.node = options.node;
          this._features = options.features;
-         //this.query = options.query;
-         //this.queryPending = false;
          this.infoTemplate = options.infoTemplate;
          this._fieldNames = [];
          //this will limit the fields to those fequired for the popup
@@ -59,13 +61,16 @@ define([
                      }
                  }
              }
+             if (this.symbolField) {
+                 this._fieldNames.push(this.symbolField);
+             }
          }
          if(this._fieldNames.length < 1) {
              //get all fields
              this._fieldNames = ["*"]
          }
 
-         this.url = options.url;
+         this.url = options.url;        
          if (typeof (this._features) === 'undefined') {
              if (typeof (this.url) !== 'undefined') {
                  this.loadData(this.url);
@@ -74,7 +79,17 @@ define([
              }
          }
          else {
-             this.loaded = true;
+             this.loadDataFromFeatureCollection();
+             //var shouldUpdate = true;
+             //if (this._features < 10000) {
+             //    shouldUpdate = JSON.stringify(this._features) !== JSON.stringify(fs);
+             //}
+             //if (shouldUpdate) {
+             //    this.graphics = fs;
+                 this.countFeatures();
+             //}
+
+             this.loaded = true;        
          }
 
          if (this.loaded !== "error") {
@@ -82,7 +97,63 @@ define([
              this._map.on('extent-change', lang.hitch(this, this.handleMapExtentChange));
              //handles the loading and mouse events on the graphics
              this.on('click', lang.hitch(this, this.handleClick));
+
+             //this.testCount = 0;
+             ///TESTERS
+             //this.on('graphic-node-add', lang.hitch(this, function () {
+             //    this.testCount += 1;
+             //    console.log(this.testCount);
+             //    if (this.node) {
+             //        this.node.innerHTML = this.testCount;
+             //    }
+             //}));
+             //this.on('graphic-node-remove', lang.hitch(this, function () {
+             //    this.testCount -= 1;
+             //    console.log(this.testCount);
+             //    if (this.node) {
+             //        this.node.innerHTML = this.testCount;
+             //    }
+             //}));
          }
+      },
+
+      loadDataFromFeatureCollection: function(){
+          var sr = this._map.spatialReference;
+          for (var i = 0; i < this._features.length; i++) {
+              var item = this._features[i];
+              if (typeof (item.geometry) !== 'undefined') {
+                  var graphicOptions = null;
+                  if (typeof (item.geometry.rings) !== 'undefined') {
+                      graphicOptions = {
+                          geometry: {
+                              rings: item.geometry.rings,
+                              "spatialReference": { "wkid": sr.wkid }
+                          }
+                      }
+                  } else if (typeof (item.geometry.paths) !== 'undefined') {
+                      graphicOptions = {
+                          geometry: {
+                              paths: item.geometry.paths,
+                              "spatialReference": { "wkid": sr.wkid }
+                          }
+                      }
+                  } else {
+                      graphicOptions = {
+                          geometry: {
+                              x: item.geometry.x,
+                              y: item.geometry.y,
+                              "spatialReference": { "wkid": sr.wkid }
+                          }
+                      }
+                  }
+                  var gra = new Graphic(graphicOptions);
+                  gra.setAttributes(item.attributes);
+                  if (this.infoTemplate) {
+                      gra.setInfoTemplate(this.infoTemplate);
+                  }
+                  this.add(gra);
+              }
+          }
       },
 
       loadData: function (url) {
@@ -95,11 +166,10 @@ define([
               qt.executeForIds(q).then(lang.hitch(this, function (results) {
                   var max = 1000;
                   if (results) {
-                      this.queryIDs = results;
                       var queries = [];
                       var i, j;
-                      for (i = 0, j = this.queryIDs.length; i < j; i += max) {
-                          var ids = this.queryIDs.slice(i, i + max);
+                      for (i = 0, j = results.length; i < j; i += max) {
+                          var ids = results.slice(i, i + max);
                           queries.push(esriRequest({
                               "url": url + "/query",
                               "content": {
@@ -120,31 +190,49 @@ define([
                           if (queryResults) {
                               var sr = this._map.spatialReference;
                               var fs = [];
+                              this.clear();
                               for (var i = 0; i < queryResults.length; i++) {
                                   for (var ii = 0; ii < queryResults[i][1].features.length; ii++) {
                                       var item = queryResults[i][1].features[ii];
                                       if (typeof (item.geometry) !== 'undefined') {
-                                          var geom = new Point(item.geometry.x, item.geometry.y, sr);
-                                          var gra = new Graphic(geom);
+                                          var graphicOptions = null;
+                                          if(typeof(item.geometry.rings) !== 'undefined'){
+                                              graphicOptions = {
+                                                  geometry: {
+                                                      rings: item.geometry.rings,
+                                                      "spatialReference": { "wkid": sr.wkid }
+                                                  }
+                                              }
+                                          } else if(typeof(item.geometry.paths) !== 'undefined'){
+                                              graphicOptions = {
+                                                  geometry: {
+                                                      paths: item.geometry.paths,
+                                                      "spatialReference": { "wkid": sr.wkid }
+                                                  }
+                                              }
+                                          } else {
+                                              graphicOptions = {
+                                                  geometry: {
+                                                      x: item.geometry.x,
+                                                      y: item.geometry.y,
+                                                      "spatialReference": { "wkid": sr.wkid }
+                                                  }
+                                              }
+                                          }
+                                          var gra = new Graphic(graphicOptions);
                                           gra.setAttributes(item.attributes);
                                           if (this.infoTemplate) {
                                               gra.setInfoTemplate(this.infoTemplate);
                                           }
-                                          fs.push(gra);
+                                          this.add(gra);
                                       }
                                   }
                               }
 
-                              //TODO...figure out a better test here JSON.stringify does not like itwhen you have too many features
-                              //it fell over with 150,000 for sure have not really tested it out too far
-                              var shouldUpdate = true;
-                              if (fs < 10000) {
-                                  shouldUpdate = JSON.stringify(this._features) !== JSON.stringify(fs);
-                              }
-                              if (shouldUpdate) {
-                                  this._features = fs;
-                                  this.clusterFeatures();
-                              }
+                              //if (JSON.stringify(this._features) !== JSON.stringify(fs)) {
+                                  //this.graphics = fs;
+                                  this.countFeatures();
+                              //}
 
                               this.loaded = true;
                           }
@@ -154,30 +242,21 @@ define([
           }
       },
       
-      //click
       handleClick : function(event) {
-         var gra = event.graphic;
-         this._map.infoWindow.setFeatures(gra.attributes.Data);
+         var g = event.graphic;
+         this._map.infoWindow.setFeatures(g.attributes.Data);
          this._map.infoWindow.show(event.mapPoint);
-         //this._map.infoWindow.maximize();
          dojoEvent.stop(event);
       },
 
-      //re-cluster on extent change
       handleMapExtentChange: function (event) {
-         if(event.levelChange) {
-            this.clusterFeatures();
-         } else if (event.delta){
-            var delta = event.delta;
-            var dx = Math.abs(delta.x);
-            var dy = Math.abs(delta.y);
-            if (dx > 50 || dy > 50)
-               this.clusterFeatures();
-         }
+          this.countFeatures();
       },
 
-      refreshFeatures: function () {
-          if (this.url) {
+      refreshFeatures: function (url) {
+          if (url) {
+              this.loadData(url);
+          } else if (this.url) {
               this.loadData(this.url);
           }
       },
@@ -220,112 +299,29 @@ define([
           //}), 500);
       },
 
-      //set color
-      setColor : function(color) {
-          this.color = Color.fromString(color);
-      },
-
-      // cluster features
-      clusterFeatures : function(redraw) {
-         this.clear();
+        //may not do it this way in favor of the graphic node add/remove way
+        //I would bet that the node add/remove is much faster with large data
+      countFeatures : function() {
          if (this._map.infoWindow.isShowing)
             this._map.infoWindow.hide();
-         var features = this._features;
+         var features = this.graphics;
          var total = 0;
-         if (typeof (features) === 'string') {
-             this.setFeatures(features);
-         } else if (typeof (features) !== 'undefined') {
+         if (typeof (features) !== 'undefined') {
              if (features.length > 0) {
-
-                 var clusterSize = this.clusterSize;
-                 var clusterGraphics = new Array();
-                 var sr = this._map.spatialReference;
                  var mapExt = this._map.extent;
-                 var o = new Point(mapExt.xmin, mapExt.ymax, sr);
-
-                 var rows = Math.ceil(this._map.height / clusterSize);
-                 var cols = Math.ceil(this._map.width / clusterSize);
-                 var distX = mapExt.getWidth() / this._map.width * clusterSize;
-                 var distY = mapExt.getHeight() / this._map.height * clusterSize;
-
-                 for (var r = 0; r < rows; r++) {
-                     for (var c = 0; c < cols; c++) {
-                         var x1 = o.x + (distX * c);
-                         var y2 = o.y - (distY * r);
-                         var x2 = x1 + distX;
-                         var y1 = y2 - distY;
-
-                         var ext = new Extent(x1, y1, x2, y2, sr);
-
-                         var cGraphics = new Array();
-                         for (var i in features) {
-                             var feature = features[i];
-                             if (ext.contains(feature.geometry)) {
-                                 total += 1;
-                                 cGraphics.push(feature);
-                             }
-                         }
-                         if (cGraphics.length > 0) {
-                             var cPt = this.getClusterCenter(cGraphics);
-                             clusterGraphics.push({
-                                 center: cPt,
-                                 graphics: cGraphics
-                             });
-                         }
-                     }
-                 }
-
-                 //add cluster to map
-                 for (var g in clusterGraphics) {
-                     var clusterGraphic = clusterGraphics[g];
-                     var count = clusterGraphic.graphics.length;
-                     var data = clusterGraphic.graphics;
-                     var size = 40 + parseInt(count / 40);
-                     var size2 = size - (size / 4);
-                     var symColor = this.color.toRgb();
-                     var cls = new SimpleLineSymbol(SimpleLineSymbol.STYLE_NULL, new Color(0, 0, 0, 0), 0);
-                     //var cls = new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color([255, 255, 255]), 2);
-                     var csym = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, size, cls, new Color([symColor[0], symColor[1], symColor[2], 0.5]));
-                     var psym = new PictureMarkerSymbol(this.icon, size -11, size -11);
-                     var psym2 = new PictureMarkerSymbol(this.icon, size2 -13, size2 -13);
-                     var cls2 = new SimpleLineSymbol(SimpleLineSymbol.STYLE_NULL, new Color(0, 0, 0, 0), 0);
-                     //var cls2 = new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color([255, 255, 255]), 1);
-                     var csym2 = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, size2, cls2, new Color([symColor[0], symColor[1], symColor[2], 0.5]));
-
-                     var attr = {
-                         Count: count,
-                         Data: data
-                     };
-                     if (count > 1) {
-                         this.add(new Graphic(clusterGraphic.center, csym, attr));
-                         this.add(new Graphic(clusterGraphic.center, psym, attr));
-                     } else {
-                         var pt = clusterGraphic.graphics[0].geometry;
-                         this.add(new Graphic(pt, csym2, attr));
-                         this.add(new Graphic(pt, psym2, attr));
-                     }
+                 for (var i in features) {
+                     var feature = features[i];
+                     if (mapExt.intersects(feature.geometry)) {
+                         total += 1;
+                     }     
                  }
              }
-
              if (this.node) {
                  this.node.innerHTML = total;
              }
          }
-      },
-      
-      getClusterCenter: function (graphics) {
-         var xSum = 0;
-         var ySum = 0;
-         var count = graphics.length;
-         array.forEach(graphics, function(graphic) {
-            xSum += graphic.geometry.x;
-            ySum += graphic.geometry.y;
-         }, this);
-         var cPt = new Point(xSum / count, ySum / count, graphics[0].geometry.spatialReference);
-         return cPt;
       }
    });
    
-   return clusterLayer;
-   
+   return featureCollectionLayer;
 }); 

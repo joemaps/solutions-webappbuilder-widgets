@@ -18,42 +18,41 @@ define(['jimu/BaseWidget', 'jimu/LayerInfos/LayerInfoFactory', 'jimu/LayerInfos/
     'dojo/dom', 'dojo/dom-class', 'dojo/dom-construct', 'dojo/on', 'dojo/dom-style', 'dojo/_base/declare', 'dojo/_base/xhr', 'dojo/_base/Color', 'dojo/_base/lang', 'dojo/_base/html', 'dojo/promise/all', 'dojo/topic', 'dojo/_base/array',
     'dijit/_WidgetsInTemplateMixin',    
     'esri/dijit/PopupTemplate', 'esri/graphic', 'esri/request', 'esri/geometry/Point', 'esri/layers/FeatureLayer', 'esri/layers/WebTiledLayer', 'esri/tasks/query', 'esri/tasks/QueryTask',
-    './js/ClusterLayer', './js/ThemeColorManager', './js/LayerVisibilityManager'
+    './js/ClusterLayer', './js/FeatureCollectionLayer', './js/ThemeColorManager', './js/LayerVisibilityManager'
 ],
 function (BaseWidget, LayerInfoFactory, LayerInfos, utils,
     dom, domClass, domConstruct, on, domStyle, declare, xhr, Color, lang, html, all, topic, array,
     _WidgetsInTemplateMixin, 
     PopupTemplate, Graphic, esriRequest, Point, FeatureLayer, WebTiledLayer, Query, QueryTask,
-    ClusterLayer, ThemeColorManager, LayerVisibilityManager
+    ClusterLayer, FeatureCollectionLayer, ThemeColorManager, LayerVisibilityManager
   ) {
     return declare([BaseWidget, _WidgetsInTemplateMixin], {
         baseClass: 'jimu-widget-511',
 
         name: "511",
-        _hasContent: null,
         opLayers: null,
         layerList: {},
-        uniqueAppendVal: "_CL",
+        UNIQUE_APPEND_VAL_CL: "_CL",
+        UNIQUE_APPEND_VAL_FC: "_FCGL",
         widgetChange: false,
         layerVisibilityManager: null,
         refreshInterval: null,
         queries: [],
         queryLayers: [],
+        lInfos: [],
 
         postCreate: function () {
             this.inherited(arguments);
-            this._hasContent = this.config && this.config.mainPanelIcon;
         },
 
         startup: function () {
-            console.log("start");
             this.inherited(arguments);
-            this.own(on(this.map, "extent-change", lang.hitch(this, this._mapExtentChange)));
+
+            lInfos = this.config.layerInfos.reverse();
         },
 
         onOpen: function () {
             this.widgetChange = false;
-            console.log("onOpen");
 
             //populates this.opLayers from this.map
             this._getOpLayers();
@@ -63,7 +62,8 @@ function (BaseWidget, LayerInfoFactory, LayerInfos, utils,
             // update this.layerList based on the layers that have been configured as widget sources
             // create cluster layers for any point layers that are in this.layerList
             this.layerList = {};
-            this._createPanelUI(this.config.layerInfos);
+
+            this._createPanelUI(lInfos);
 
             //helps turn on/off layers when the widget is opened and closed
             //when initialized LayerVisibilityManager will turn off all opLayers that are not being consumed by the widget
@@ -85,11 +85,15 @@ function (BaseWidget, LayerInfoFactory, LayerInfos, utils,
             var lyr = null;
             for (var key in this.layerList) {
                 var lyr = this.layerList[key];
-                if (lyr.type !== "ClusterLayer") {
+                if (lyr.type !== "ClusterLayer" || lyr.type !== "FeatureCollectionLayer") {
                     lyr = lyr.layerObject;
-                }
-                else {
-                    var sourceLayerID = lyr.layerObject.id.replace(this.uniqueAppendVal, "");
+                } else {
+                    var id = lyr.layerObject.id;
+                    var lenID = id.length;
+                    var sourceLayerID = id.replace(this.UNIQUE_APPEND_VAL_CL, "");
+                    if (lenID === sourceLayerID.length) {
+                        sourceLayerID = id.replace(this.UNIQUE_APPEND_VAL_FC, "");
+                    }
                     for (var i = 0; i < this.opLayers.length; i++) {
                         var l = this.opLayers[i];
                         if (l.layerObject) {
@@ -106,16 +110,16 @@ function (BaseWidget, LayerInfoFactory, LayerInfos, utils,
             }
 
             //refresh the cluster layers at the same interval
-            this.refreshInterval = setInterval(lang.hitch(this, this.refreshClusterLayers), (this.config.refreshInterval * 60000));
+            this.refreshInterval = setInterval(lang.hitch(this, this.refreshLayers), (this.config.refreshInterval * 60000));
         },
 
-        refreshClusterLayers: function(){
+        refreshLayers: function(){
             for (var key in this.layerList) {
                 var lyr = this.layerList[key];
-                if (lyr.type === "ClusterLayer") {
+                if (lyr.type === "ClusterLayer" || lyr.type === "FeatureCollectionLayer") {
                     lyr.layerObject.refreshFeatures();
                 }
-            }      
+            }
         },
 
         _getOpLayers: function () {
@@ -140,42 +144,15 @@ function (BaseWidget, LayerInfoFactory, LayerInfos, utils,
 
             for (var i = 0; i < layerInfos.length; i++) {
                 var lyrInfo = layerInfos[i];
-                var potentialClusterId = lyrInfo.id + this.uniqueAppendVal;
                 if (lyrInfo.use) {
                     this._createLayerListItem(lyrInfo);
                 }
             }
-
-            if (this.queries.length > 0 && this.queryLayers.length > 0) {
-                promises = all(this.queries);
-                this.p = setTimeout(lang.hitch(this, promises.then(lang.hitch(this, function (results) {
-                    if (results) {
-                        for (var i = 0; i < results.length; i++) {
-                            var ql = this.queryLayers[i];
-                            var id = ql.layer.id;
-                            if (!(id in this.layerList)) {
-                                this.layerList[id] = {
-                                    type: ql.type,
-                                    layerObject: ql.layer,
-                                    visible: true,
-                                    queryIds: results[i]
-                                };
-                                this._addPanelItem(ql.layer, ql.lyrInfo);
-                            } else {
-                                this.layerList[id].queryIds = results[i];
-                            }
-                        }
-                        this.p = null;
-                        this._mapExtentChange();
-                        console.log("PROMISES PROMISES");
-                    }
-                }))), 60000);
-            }
-
-            this._mapExtentChange();
         },
 
         _createLayerListItem: function (lyrInfo) {
+            //TODO make change for map server services
+
             for (var ii = 0; ii < this.opLayers.length; ii++) {
                 var layer = this.opLayers[ii];
                 var layerGeomType = "";
@@ -199,20 +176,11 @@ function (BaseWidget, LayerInfoFactory, LayerInfos, utils,
         _updateLayerList: function (lyr, lyrInfo, lyrType) {
             var l = null;
             if (lyr.layerObject.geometryType === "esriGeometryPoint") {
-                var potentialNewID = lyrInfo.id + this.uniqueAppendVal;
-                if (this.map.graphicsLayerIds.indexOf(potentialNewID) > -1) {
-                    l = this.map.getLayer(potentialNewID);
-                } else {
-                    l = this._createClusterLayer(lyrInfo, lyr.layerObject);
-                }
+                l = this._getClusterLayer(lyrInfo, lyr.layerObject);
                 this.layerList[l.id] = { type: "ClusterLayer", layerObject: l, visible: true };
-            }
-            else {
-                var lo = lyr.layerObject;
-                var query = new Query();
-                query.where = "1=1";
-                this.queries.push(lo.queryIds(query));
-                this.queryLayers.push({layer: lo, type: lyrType, lyrInfo: lyrInfo});
+            } else {
+                l = this._createFeatureCollectionLayer(lyrInfo, lyr.layerObject, lyrType);
+                this.layerList[l.id] = { type: "FeatureCollectionLayer", layerObject: l, visible: true, pl: lyr };
             }
             if (l) {
                 this._addPanelItem(l, lyrInfo);
@@ -247,104 +215,77 @@ function (BaseWidget, LayerInfoFactory, LayerInfos, utils,
                 layer.clusterFeatures();
             }
 
-            if (typeof (this.layerList[layer.id].queryIds) !== 'undefined') {
-                recNum.innerHTML = this.layerList[layer.id].queryIds.length;
+            if (this.layerList[layer.id].type === "FeatureCollectionLayer") {
+                layer.node = recNum;
+                layer.countFeatures();
             }
 
             on(recIcon, "click", lang.hitch(this, this._toggleLayer, layer));
+            //on(recIcon, "click", lang.hitch(this, this._showLegend, layer));
+            //on(rec, "right-click", lang.hitch(this, this._showMenu, layer));
         },
 
-        _createClusterLayer: function (lyrInfo, lyr) {
-            var features = [];
-            //var hasFeatures = lyr.graphics.length > 0 ? true : false;
-            //if (hasFeatures) {
-            //    for (var i = 0; i < lyr.graphics.length; i++) {
-            //        features.push(lyr.graphics[i]);
-            //    }
-            //}
+        _getClusterLayer: function (lyrInfo, lyr, lyrType) {
+            var clusterLayer = null;
+            var potentialNewID = lyrInfo.id + this.UNIQUE_APPEND_VAL_CL;
+            if (this.map.graphicsLayerIds.indexOf(potentialNewID) > -1) {
+                clusterLayer = this.map.getLayer(potentialNewID);
+            } else {
+                var features = [];
+                var hasFeatures = (lyrType === "Feature Collection") ? true : false;
+                var n = domConstruct.toDom(lyrInfo.imageData);
+                var options = {
+                    name: lyrInfo.label + this.UNIQUE_APPEND_VAL_CL,
+                    id: potentialNewID,
+                    icon: n.src,
+                    map: this.map,
+                    node: dom.byId("recNum_" + potentialNewID),
+                    features: !hasFeatures ? undefined : features,
+                    infoTemplate: lyr.infoTemplate,
+                    url: lyrInfo.url,
+                    refreshInterval: this.config.refreshInterval,
+                    refreshEnabled: this.config.refreshEnabled
+                };
+                domConstruct.destroy(n.id);
 
-            //TODO if I just go this route at the start would only want to avoid the query
-            // if it's a feature collection
-            var hasFeatures = false;
-
-            var n = domConstruct.toDom(lyrInfo.imageData);
-            var options = {
-                name: lyrInfo.label + this.uniqueAppendVal,
-                id: lyrInfo.id + this.uniqueAppendVal,
-                icon: n.src,
-                map: this.map,
-                node: dom.byId("recNum_" + lyrInfo.id + this.uniqueAppendVal),
-                features: !hasFeatures ? lyrInfo.url : features,
-                infoTemplate: lyr.infoTemplate,
-                url: lyrInfo.url,
-                refreshInterval: this.config.refreshInterval,
-                refreshEnabled: this.config.refreshEnabled
-            };
-            domConstruct.destroy(n.id);
-
-            var clusterLayer = new ClusterLayer(options);
-            this.map.addLayer(clusterLayer);
+                clusterLayer = new ClusterLayer(options);
+                this.map.addLayer(clusterLayer);   
+            }
             return clusterLayer;
         },
 
-        _mapExtentChange: function () {
-            var queries = [];
-            var updateNodes = [];
+        //options: {name: "", map: map, id: "", renderer: <sourceLayerRenderer>, node: <updateNode>, features: <optional if url is supplied>, infoTemplate: <infoTemplate>}
+        _createFeatureCollectionLayer: function (lyrInfo, lyr, lyrType) {
+            var featureCollectionLayer = null;
+            var potentialNewID = lyrInfo.id + this.UNIQUE_APPEND_VAL_CL;
+            if (this.map.graphicsLayerIds.indexOf(potentialNewID) > -1) {
+                featureCollectionLayer = this.map.getLayer(potentialNewID);
+            } else {
+                //TODO...the other option would be to avoid this on actual FeatureCollection layer type
+                // main advantage to this approach is that we can count and flash easily
+                var features = [];
+                var hasFeatures = (lyrType === "Feature Collection") ? true : false;
+                var n = domConstruct.toDom(lyrInfo.imageData);
+                var options = {
+                    name: lyrInfo.label + this.UNIQUE_APPEND_VAL_FC,
+                    id: lyrInfo.id + this.UNIQUE_APPEND_VAL_FC,
+                    icon: n.src,
+                    map: this.map,
+                    renderer: lyr.renderer,
+                    node: dom.byId("recNum_" + lyrInfo.id + this.UNIQUE_APPEND_VAL_FC),
+                    features: !hasFeatures ? undefined : lyr.graphics,
+                    infoTemplate: lyr.infoTemplate,
+                    url: lyrInfo.url,
+                    refreshInterval: this.config.refreshInterval,
+                    refreshEnabled: this.config.refreshEnabled
+                };
+                domConstruct.destroy(n.id);
 
-            for (var key in this.layerList) {
-                var lyr = this.layerList[key];
-                //cluster layers will update the node on their own
-                if (lyr.type !== 'ClusterLayer') {
-                    if (typeof (lyr.layerObject) === 'undefined') {
-                        console.log("A");
-                    } else {
-
-                        var node = dom.byId("recNum_" + lyr.layerObject.id);
-                        var ext = this.map.extent;
-                        if (lyr) {
-                            if (lyr.type === "Feature Collection") {
-                                node.innerHTML = this._checkCoincidence(ext, lyr.layerObject);
-                            } else if (lyr.type === "Feature Layer") {
-                                //TODO...getting from the graphics is faster
-                                // however...I can't tell when it's in a valid vs invalid state
-                                //comes up more with many features in single service tests 
-                                //if (lyr.layerObject.graphics.length > 0) {
-                                //    node.innerHTML = this._checkCoincidence(ext, lyr.layerObject);
-                                //} else {
-
-
-                                //TODO go to request also
-                                var q = new Query();
-                                q.geometry = ext;
-                                q.returnGeometry = false;
-
-                                var qt = new QueryTask(lyr.layerObject.url);
-                                queries.push(qt.executeForIds(q));
-                                updateNodes.push(node);
-                            }
-                        }
-                    }
-                }
+                var featureCollectionLayer = new FeatureCollectionLayer(options);
+                this.map.addLayer(featureCollectionLayer);
             }
+            return featureCollectionLayer;
 
-            if (queries.length > 0) {
-                promises = all(queries);
-                promises.then(function (results) {
-                    for (var i = 0; i < results.length; i++) {
-                        updateNodes[i].innerHTML = results[i].length;
-                    }
-                });
-            }
-        },
-
-        _checkCoincidence: function (ext, lyr) {
-            //test if the graphic intersects the extent
-            // this will only be done for poly or line feature collection layers
-            var featureCount = 0;
-            for (var i = 0; i < lyr.graphics.length; i++) {
-                featureCount += ext.intersects(lyr.graphics[i].geometry) ? 1 : 0;
-            }
-            return featureCount;
         },
 
         _updateUI: function (styleName) {
@@ -368,20 +309,47 @@ function (BaseWidget, LayerInfoFactory, LayerInfos, utils,
                 if (lyr) {
                     lyr.layerObject.setVisibility(false);
                     this.layerList[obj.id].visible = false;
+                    if (typeof (lyr.pl) !== 'undefined') {
+                        lyr.pl.visibility = false;
+                        if (this.map.graphicsLayerIds.indexOf(obj.id) > -1) {
+                            var l = this.map.getLayer(obj.id);
+                            l.setVisibility(false);
+                        }
+                    }
                 }
             } else {
                 domClass.add("recIcon_" + id, "active");
                 if (lyr) {
                     lyr.layerObject.setVisibility(true);
-                    if (lyr.type === 'ClusterLayer') {
+                    if (lyr.type === 'ClusterLayer' || lyr.type === 'FeatureCollectionLayer') {
                         //TODO still need to wrok on that
                         //lyr.layerObject.flashFeatures();
-                    }
-                    
+                    } 
                     this.layerList[obj.id].visible = true;
+                    if (typeof (lyr.pl) !== 'undefined') {
+                        lyr.pl.visibility = true;
+                        if (this.map.graphicsLayerIds.indexOf(obj.id) > -1) {
+                            var l = this.map.getLayer(obj.id);
+                            l.setVisibility(true);
+                        }
+                    }
                 }
             }
         },
+
+        _showLegend: function (obj) {
+            var id = obj.id;
+            var lyr = this.layerList[obj.id];
+
+            // expand and show the legend for this item
+
+        },
+
+        _showMenu: function (obj) {
+            //show right click menu here 
+
+        },
+
 
         onAppConfigChanged: function (appConfig, reason, changedData) {
             switch (reason) {

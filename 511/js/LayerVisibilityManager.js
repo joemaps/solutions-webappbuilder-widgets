@@ -66,16 +66,17 @@ define(['dojo/_base/declare',
                               layerObject: layer.layerObject,
                               visible: layer.layerObject.visible
                           };
-                      }
-                  } else if (layer.featureCollection) {
-                      for (var i = 0; i < layer.featureCollection.layers.length; i++) {
-                          var lyr = layer.featureCollection.layers[i];
-                          if (this._shouldCheck(lyr)) {
-                              this._initalLayerVisibility[lyr.id] = {
-                                  type: lyr.layerType,
-                                  layerObject: lyr.layerObject,
-                                  visible: lyr.layerObject.visible
-                              };
+                      } else if (layer.featureCollection) {
+                          for (var i = 0; i < layer.featureCollection.layers.length; i++) {
+                              var lyr = layer.featureCollection.layers[i];
+                              if (this._shouldCheck(lyr)) {
+                                  this._initalLayerVisibility[lyr.id] = {
+                                      type: lyr.layerType,
+                                      layerObject: lyr.layerObject,
+                                      visible: lyr.layerObject.visible,
+                                      pl: layer
+                                  };
+                              }
                           }
                       }
                   }
@@ -86,6 +87,7 @@ define(['dojo/_base/declare',
               //this.layerList is a list configured layers similar in structure to the initalLayerVisibility
               // {key: <LayerID>, values: { type: <LayerTypeString>, layerObject: <LayerInstance>, visible: <bool>}}
               return this._layerList ? !(l.id in this._layerList) : true;
+              //return true;
           },
 
           _setLayerVisibility: function (lyrs, auto) {
@@ -95,7 +97,21 @@ define(['dojo/_base/declare',
               if (lyrs) {
                   for (var key in lyrs) {
                       var l = lyrs[key];
-                      l.layerObject.setVisibility(auto ? false : l.visible);
+                      if (typeof (l.pl) === 'undefined') {
+                          l.layerObject.setVisibility(auto ? false : l.visible);
+                      } else {
+                          l.layerObject.setVisibility(auto ? false : l.visible);
+                          l.pl.visibility = auto ? false : l.visible;
+
+
+                          //if (auto) {
+                          //    l.layerObject.setVisibility(auto ? false : l.visible);
+                          //    l.pl.visibility = auto ? false : l.visible;
+                          //} else {
+                          //    l.layerObject.setVisibility(auto ? false : l.visible);
+                          //    l.pl.visibility = auto ? false : l.visible;
+                          //}
+                      }
                   }
                 //TODO need to understand how to make LayerList update
               }
