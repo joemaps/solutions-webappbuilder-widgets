@@ -221,8 +221,8 @@ function (BaseWidget, LayerInfoFactory, LayerInfos, utils,
             }
 
             on(recIcon, "click", lang.hitch(this, this._toggleLayer, layer));
-            //on(recIcon, "click", lang.hitch(this, this._showLegend, layer));
-            //on(rec, "right-click", lang.hitch(this, this._showMenu, layer));
+            on(recIcon, "click", lang.hitch(this, this._showLegend, layer));
+            on(rec, "right-click", lang.hitch(this, this._showMenu, layer));
         },
 
         _getClusterLayer: function (lyrInfo, lyr, lyrType) {
@@ -287,6 +287,67 @@ function (BaseWidget, LayerInfoFactory, LayerInfos, utils,
             return featureCollectionLayer;
 
         },
+
+        ////TODO...neither of these will be necessary if the layers update the nodes
+        //_mapExtentChange: function () {
+        //    var queries = [];
+        //    var updateNodes = [];
+
+        //    for (var key in this.layerList) {
+        //        var lyr = this.layerList[key];
+        //        //cluster layers will update the node on their own
+        //        if (lyr.type !== 'ClusterLayer') {
+        //            if (typeof (lyr.layerObject) === 'undefined') {
+        //                console.log("A");
+        //            } else {
+
+        //                var node = dom.byId("recNum_" + lyr.layerObject.id);
+        //                var ext = this.map.extent;
+        //                if (lyr) {
+        //                    if (lyr.type === "Feature Collection") {
+        //                        node.innerHTML = this._checkCoincidence(ext, lyr.layerObject);
+        //                    } else if (lyr.type === "Feature Layer") {
+        //                        //TODO...getting from the graphics is faster
+        //                        // however...I can't tell when it's in a valid vs invalid state
+        //                        //comes up more with many features in single service tests 
+        //                        //if (lyr.layerObject.graphics.length > 0) {
+        //                        //    node.innerHTML = this._checkCoincidence(ext, lyr.layerObject);
+        //                        //} else {
+
+
+        //                        //TODO go to request also
+        //                        var q = new Query();
+        //                        q.geometry = ext;
+        //                        q.returnGeometry = false;
+
+        //                        var qt = new QueryTask(lyr.layerObject.url);
+        //                        queries.push(qt.executeForIds(q));
+        //                        updateNodes.push(node);
+        //                    }
+        //                }
+        //            }
+        //        }
+        //    }
+
+        //    if (queries.length > 0) {
+        //        promises = all(queries);
+        //        promises.then(function (results) {
+        //            for (var i = 0; i < results.length; i++) {
+        //                updateNodes[i].innerHTML = results[i].length;
+        //            }
+        //        });
+        //    }
+        //},
+        //TODO...neither of these will be necessary if the layers update the nodes
+        //_checkCoincidence: function (ext, lyr) {
+        //    //test if the graphic intersects the extent
+        //    // this will only be done for poly or line feature collection layers
+        //    var featureCount = 0;
+        //    for (var i = 0; i < lyr.graphics.length; i++) {
+        //        featureCount += ext.intersects(lyr.graphics[i].geometry) ? 1 : 0;
+        //    }
+        //    return featureCount;
+        //},
 
         _updateUI: function (styleName) {
             var themeColorManager = new ThemeColorManager({
