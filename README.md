@@ -27,16 +27,7 @@ The Widget Reposistory currently includes:
 ## Requirements
 Requires Web AppBuilder for ArcGIS version 1.2
 
-## Instructions
-Deploying Widgets.
-
-To use the widgets with you should copy any of the widgets to the stemapp/widget directory. This is located in %webappbuilder_install%/client directory.
-
-For more resources on developing modifying widgets please visit
-[Web AppBuilder for ArcGIS Documentation](http://doc.arcgis.com/en/web-appbuilder/)
-
-### General Help
-[New to Github? Get started here.](http://htmlpreview.github.com/?https://github.com/Esri/esri.github.com/blob/master/help/esri-getting-to-know-github.html)
+##tp://htmlpreview.github.com/?https://github.com/Esri/esri.github.com/blob/master/help/esri-getting-to-know-github.html)
 
 
 ## Resources
