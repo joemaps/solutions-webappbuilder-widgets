@@ -19,12 +19,15 @@ login = requests.get("https://github.com/", auth=(username, token))
 #remote = repo.create_remote('origin', url=local_path)
 
 repo = git.Repo()
+print("repo:")
 print(repo)
 
 
 #Cloning Repo:
 def clone():
     git.Git(local_path).clone("origin")
+    print("Finished!")
+    exit()
 
 
 def push():
@@ -39,7 +42,8 @@ def push():
     repo.git.commit('-m', commit_msg)
     
     origin.push()
-
+    print("Finished!")
+    exit()
    
 def main():
     choices = "clone, push"
