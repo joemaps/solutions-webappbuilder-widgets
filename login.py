@@ -26,23 +26,19 @@ print(repo)
 #Cloning Repo:
 def clone():
     git.Git(local_path).clone("origin")
-    print("NOT!!!!!!!!!Finished!")
+    print("Finished!")
     exit()
 
 
 def push():
 
-    #repo = git.Repo(local_path)
     origin = repo.remote(name="origin")
-    
     repo.git.checkout(br)
-
     repo.git.add('--all')
-
     repo.git.commit('-m', commit_msg)
     
     origin.push()
-    print("YES!!!!!!!!!!!!!!!!Finished!")
+    print("Finished!")
     exit()
    
 def main():
